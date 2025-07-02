@@ -1010,19 +1010,26 @@ def t_batch_job_source(
   raise ValueError(f'Unsupported source: {src}')
 
 
-def t_batch_job_destination(dest: str) -> types.BatchJobDestination:
-  if dest.startswith('gs://'):
-    return types.BatchJobDestination(
-        format='jsonl',
-        gcs_uri=dest,
-    )
-  elif dest.startswith('bq://'):
-    return types.BatchJobDestination(
-        format='bigquery',
-        bigquery_uri=dest,
-    )
-  else:
-    raise ValueError(f'Unsupported destination: {dest}')
+def t_batch_job_destination(
+    dest: Union[str, types.BatchJobDestinationOrDict],
+) -> types.BatchJobDestination:
+  if isinstance(dest, dict):
+    dest = types.BatchJobDestination(**dest)
+  elif isinstance(dest, str):
+    if dest.startswith('gs://'):
+      return types.BatchJobDestination(
+          format='jsonl',
+          gcs_uri=dest,
+      )
+    elif dest.startswith('bq://'):
+      return types.BatchJobDestination(
+          format='bigquery',
+          bigquery_uri=dest,
+      )
+    else:
+      raise ValueError(f'Unsupported destination: {dest}')
+  if isinstance(dest, types.BatchJobDestination):
+    return dest
 
 
 def t_batch_job_name(client: _api_client.BaseApiClient, name: str) -> str:

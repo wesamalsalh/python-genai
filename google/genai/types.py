@@ -10160,6 +10160,14 @@ class BatchJobDestinationDict(TypedDict, total=False):
 BatchJobDestinationOrDict = Union[BatchJobDestination, BatchJobDestinationDict]
 
 
+BatchJobDestinationUnion = Union[BatchJobDestination, str]
+
+
+BatchJobDestinationUnionDict = Union[
+    BatchJobDestinationUnion, BatchJobDestinationDict
+]
+
+
 class CreateBatchJobConfig(_common.BaseModel):
   """Config for optional parameters."""
 
@@ -10171,7 +10179,7 @@ class CreateBatchJobConfig(_common.BaseModel):
       description="""The user-defined name of this BatchJob.
       """,
   )
-  dest: Optional[str] = Field(
+  dest: Optional[BatchJobDestinationUnion] = Field(
       default=None,
       description="""GCS or BigQuery URI prefix for the output predictions. Example:
       "gs://path/to/output/data" or "bq://projectId.bqDatasetId.bqTableId".
@@ -10189,7 +10197,7 @@ class CreateBatchJobConfigDict(TypedDict, total=False):
   """The user-defined name of this BatchJob.
       """
 
-  dest: Optional[str]
+  dest: Optional[BatchJobDestinationUnionDict]
   """GCS or BigQuery URI prefix for the output predictions. Example:
       "gs://path/to/output/data" or "bq://projectId.bqDatasetId.bqTableId".
       """

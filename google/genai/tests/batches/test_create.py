@@ -172,6 +172,64 @@ test_table: list[pytest_helper.TestTableItem] = [
         exception_if_vertex='Unsupported source',
         has_union=True,
     ),
+    pytest_helper.TestTableItem(
+        name='test_generate_content_with_gcs',
+        parameters=types._CreateBatchJobParameters(
+            model=_GEMINI_MODEL,
+            src={
+                'gcs_uri': [_GENERATE_CONTENT_GCS_INPUT_FILE],
+                'format': 'jsonl',
+            },
+            config={
+                'display_name': _DISPLAY_NAME,
+                'dest': {
+                    'gcs_uri': _GENERATE_CONTENT_GCS_OUTPUT_PREFIX,
+                    'format': 'jsonl',
+                }
+            },
+        ),
+        exception_if_mldev='One of',
+    ),
+    pytest_helper.TestTableItem(
+        name='test_generate_content_with_bigquery',
+        parameters=types._CreateBatchJobParameters(
+            model=_GEMINI_MODEL_FULL_NAME,
+            src={
+                'bigquery_uri': _GENERATE_CONTENT_BQ_INPUT_FILE,
+                'format': 'bigquery',
+            },
+            config={
+                'display_name': _DISPLAY_NAME,
+                'dest': {
+                    'bigquery_uri': _GENERATE_CONTENT_BQ_OUTPUT_PREFIX,
+                    'format': 'bigquery',
+                },
+            },
+        ),
+        exception_if_mldev='One of',
+    ),
+    pytest_helper.TestTableItem(
+        name='test_with_inlined_request',
+        parameters=types._CreateBatchJobParameters(
+            model=_MLDEV_GEMINI_MODEL,
+            src={'inlined_requests': [_INLINED_REQUEST]},
+            config={
+                'display_name': _DISPLAY_NAME,
+            },
+        ),
+        exception_if_vertex='supported',
+    ),
+    pytest_helper.TestTableItem(
+        name='test_generate_content_with_file',
+        parameters=types._CreateBatchJobParameters(
+            model=_MLDEV_GEMINI_MODEL,
+            src={'file_name': 'files/76eifkmq7uxd'},
+            config={
+                'display_name': _DISPLAY_NAME,
+            },
+        ),
+        exception_if_vertex='supported',
+    ),
 ]
 
 pytestmark = [
@@ -193,11 +251,19 @@ async def test_async_create(client):
         src=_GENERATE_CONTENT_GCS_INPUT_FILE,
     )
 
-    assert batch_job
+    assert batch_job.name.startswith('projects/')
+    assert (
+        batch_job.model == _GEMINI_MODEL_FULL_NAME
+    )  # Converted to Vertex full name.
+    assert batch_job.src.gcs_uri == [_GENERATE_CONTENT_GCS_INPUT_FILE]
+    assert batch_job.src.format == 'jsonl'
 
   with pytest_helper.exception_if_vertex(client, ValueError):
     batch_job = await client.aio.batches.create(
         model=_GEMINI_MODEL,
         src=[_INLINED_REQUEST],
     )
-    assert batch_job
+    assert batch_job.name.startswith('batches/')
+    assert (
+        batch_job.model == 'models/' + _GEMINI_MODEL
+    )  # Converted to Gemini full name.
