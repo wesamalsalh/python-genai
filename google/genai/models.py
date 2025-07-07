@@ -2793,6 +2793,13 @@ def _EditImageConfig_to_vertex(
         getv(from_object, ['output_compression_quality']),
     )
 
+  if getv(from_object, ['add_watermark']) is not None:
+    setv(
+        parent_object,
+        ['parameters', 'addWatermark'],
+        getv(from_object, ['add_watermark']),
+    )
+
   if getv(from_object, ['edit_mode']) is not None:
     setv(
         parent_object,

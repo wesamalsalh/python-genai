@@ -6375,6 +6375,11 @@ class EditImageConfig(_common.BaseModel):
       only).
       """,
   )
+  add_watermark: Optional[bool] = Field(
+      default=None,
+      description="""Whether to add an invisible watermark to the generated images. The
+      default value is true.""",
+  )
   edit_mode: Optional[EditMode] = Field(
       default=None,
       description="""Describes the editing mode for the request.""",
@@ -6450,6 +6455,10 @@ class EditImageConfigDict(TypedDict, total=False):
   """Compression quality of the generated image (for ``image/jpeg``
       only).
       """
+
+  add_watermark: Optional[bool]
+  """Whether to add an invisible watermark to the generated images. The
+      default value is true."""
 
   edit_mode: Optional[EditMode]
   """Describes the editing mode for the request."""
